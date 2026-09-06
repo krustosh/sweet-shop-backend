@@ -1,0 +1,13 @@
+name: PR Governance
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  governance:
+    uses: krustosh/github-development-standards/.github/workflows/pr-governance.yml@v1.0.5
+    with:
+      jira_base_url: https://krustosh.atlassian.net
+

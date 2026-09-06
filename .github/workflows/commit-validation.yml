@@ -1,0 +1,10 @@
+name: Commit Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-commits:
+    uses: krustosh/github-development-standards/.github/workflows/commit-validation.yml@v1.0.5

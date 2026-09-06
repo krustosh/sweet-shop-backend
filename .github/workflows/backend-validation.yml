@@ -1,0 +1,29 @@
+name: Backend Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Build and Test Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.303
+
+      - name: Restore dependencies
+        run: dotnet restore SweetShop.slnx
+
+      - name: Build solution
+        run: dotnet build SweetShop.slnx --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test SweetShop.slnx --no-build --configuration Release
