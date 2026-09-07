@@ -10,4 +10,9 @@
   <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SweetShop.Application\SweetShop.Application.csproj" />
+    <ProjectReference Include="..\SweetShop.Infrastructure\SweetShop.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
