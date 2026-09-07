@@ -1,5 +1,12 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/SweetShop.Api/SweetShop.Api.csproj" />
+    <Project Path="src/SweetShop.Application/SweetShop.Application.csproj" />
+    <Project Path="src/SweetShop.Domain/SweetShop.Domain.csproj" />
+    <Project Path="src/SweetShop.Infrastructure/SweetShop.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SweetShop.IntegrationTests/SweetShop.IntegrationTests.csproj" />
+    <Project Path="tests/SweetShop.UnitTests/SweetShop.UnitTests.csproj" />
   </Folder>
 </Solution>
