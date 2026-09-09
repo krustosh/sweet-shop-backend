@@ -52,3 +52,6 @@ Thumbs.db
 
 # SonarQube
 .sonarqube/
+
+.env
+.env.*

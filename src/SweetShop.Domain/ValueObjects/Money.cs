@@ -1,3 +1,5 @@
+using SweetShop.Domain.Common;
+
 namespace SweetShop.Domain.ValueObjects;
 
 /// <summary>
@@ -14,6 +16,11 @@ public sealed record Money
     /// Gets the ISO 4217 currency code.
     /// </summary>
     public string Currency { get; }
+
+private Money()
+{
+    Currency = DomainConstants.CurrencyInr;
+}
 
     /// <summary>
     /// Initializes a new monetary value.

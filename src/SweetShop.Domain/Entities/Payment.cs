@@ -59,6 +59,15 @@ public sealed class Payment : AuditableEntity
     /// </summary>
     public DateTime? PaidAt { get; private set; }
 
+/// <summary>
+/// Initializes a new instance of the <see cref="Payment"/> class. 
+/// </summary>
+    private Payment()
+    {
+        PaymentNumber = string.Empty;
+        Amount = new Money(0, "INR");
+    }
+
     /// <summary>
     /// Initializes a new payment.
     /// </summary>

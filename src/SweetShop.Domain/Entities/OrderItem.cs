@@ -59,6 +59,15 @@ public sealed class OrderItem : Entity
     /// </summary>
     public DateTime CreatedAt { get; private set; }
 
+    private OrderItem()
+    {
+        ProductName = string.Empty;
+        VariantName = string.Empty;
+        Unit = ProductUnit.Piece;
+        UnitPrice = new Money(0, DomainConstants.CurrencyInr);
+        LineTotal = new Money(0, DomainConstants.CurrencyInr);
+    }
+
     /// <summary>
     /// Initializes a new order item.
     /// </summary>

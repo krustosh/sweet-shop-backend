@@ -38,6 +38,13 @@ public sealed class ProductVariant : AuditableEntity
     /// Gets the variant status.
     /// </summary>
     public ProductVariantStatus Status { get; private set; }
+    
+    private ProductVariant()
+    {
+        Name = string.Empty;
+        Quantity = new ProductQuantity(1, ProductUnit.Piece);
+        Price = new Money(0, DomainConstants.CurrencyInr);
+    }
 
     /// <summary>
     /// Initializes a new product variant.
