@@ -29,6 +29,11 @@ public sealed class User : AuditableEntity
     public DateTime? LastLoginAt { get; private set; }
 
     /// <summary>
+    /// Gets a value indicating whether the user is allowed to authenticate.
+    /// </summary>
+    public bool CanAuthenticate => Status == UserStatus.Active;
+
+    /// <summary>
     /// Initializes a new user.
     /// </summary>
     /// <param name="mobileNumber">
@@ -40,6 +45,8 @@ public sealed class User : AuditableEntity
         UserRole role)
     {
         MobileNumber = NormalizeMobileNumber(mobileNumber);
+        ValidateRole(role);
+
         Role = role;
         Status = UserStatus.Active;
     }
@@ -59,6 +66,8 @@ public sealed class User : AuditableEntity
     /// <param name="role">The new user role.</param>
     public void ChangeRole(UserRole role)
     {
+        ValidateRole(role);
+
         Role = role;
         UpdatedAt = DateTime.UtcNow;
     }
@@ -88,6 +97,17 @@ public sealed class User : AuditableEntity
     {
         Status = UserStatus.Blocked;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    private static void ValidateRole(UserRole role)
+    {
+        if (!Enum.IsDefined(role))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(role),
+                role,
+                "User role is invalid.");
+        }
     }
 
     private static string NormalizeMobileNumber(string mobileNumber)
