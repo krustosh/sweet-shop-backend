@@ -58,16 +58,6 @@ public sealed class UserTests
     }
 
     [Fact]
-    public void CChangeRoleWithValidRoleUpdatesRole()
-    {
-        var user = new User("9876543210", UserRole.Customer);
-
-        user.ChangeRole(UserRole.Admin);
-
-        Assert.Equal(UserRole.Admin, user.Role);
-    }
-
-    [Fact]
     public void ChangeRoleWithInvalidRoleThrowsArgumentOutOfRangeException()
     {
         var user = new User("9876543210", UserRole.Customer);

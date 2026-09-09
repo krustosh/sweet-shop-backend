@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SweetShop.Domain.Entities;
 
 namespace SweetShop.Infrastructure.Persistence.Context;
 
@@ -7,6 +8,11 @@ namespace SweetShop.Infrastructure.Persistence.Context;
 /// </summary>
 public sealed class SweetShopDbContext : DbContext
 {
+    /// <summary>
+    /// Gets the OTP verification records.
+    /// </summary>
+    public DbSet<OtpVerification> OtpVerifications => Set<OtpVerification>();
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SweetShopDbContext"/> class.
     /// </summary>
