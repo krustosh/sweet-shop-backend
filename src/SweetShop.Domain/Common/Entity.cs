@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace SweetShop.Domain.Common;
 
 /// <summary>
@@ -15,6 +17,8 @@ public abstract class Entity
     /// <summary>
     /// Gets the domain events raised by this entity.
     /// </summary>
+ 
+    [NotMapped]
     public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
     /// <summary>

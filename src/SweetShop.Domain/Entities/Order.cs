@@ -110,6 +110,15 @@ public sealed class Order : AuditableEntity
     /// Gets the items belonging to the order.
     /// </summary>
     public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
+    
+    private Order()
+    {
+        OrderNumber = string.Empty;
+        Subtotal = new Money(0, DomainConstants.CurrencyInr);
+        DeliveryFee = new Money(0, DomainConstants.CurrencyInr);
+        DiscountAmount = new Money(0, DomainConstants.CurrencyInr);
+        TotalAmount = new Money(0, DomainConstants.CurrencyInr);
+        }
 
     /// <summary>
     /// Initializes a new order.
