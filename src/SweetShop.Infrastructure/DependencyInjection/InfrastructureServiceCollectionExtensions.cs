@@ -2,8 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
+using SweetShop.Application.Interfaces;
 using SweetShop.Infrastructure.Authentication;
+using SweetShop.Infrastructure.Persistence;
 using SweetShop.Infrastructure.Persistence.Context;
+using SweetShop.Infrastructure.Persistence.Stores;
 
 namespace SweetShop.Infrastructure.DependencyInjection;
 
@@ -77,6 +80,11 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton(jwtOptions);
 
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddSingleton<IOtpGenerator, OtpGenerator>();
+        services.AddSingleton<IOtpHasher, OtpHasher>();
+        services.AddScoped<IUserStore, UserStore>();
+        services.AddScoped<IOtpVerificationStore, OtpVerificationStore>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }
