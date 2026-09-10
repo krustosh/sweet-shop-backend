@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using SweetShop.Application.Authentication;
 
 namespace SweetShop.Application.DependencyInjection;
 
@@ -12,9 +13,11 @@ public static class ApplicationServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The application's service collection.</param>
     /// <returns>The same service collection for chaining.</returns>
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(
+        this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         return services;
     }
