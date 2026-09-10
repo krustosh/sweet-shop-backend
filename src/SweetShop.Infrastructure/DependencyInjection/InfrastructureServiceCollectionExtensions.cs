@@ -85,6 +85,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserStore, UserStore>();
         services.AddScoped<IOtpVerificationStore, OtpVerificationStore>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IOtpSender, DevelopmentOtpSender>();
 
         return services;
     }

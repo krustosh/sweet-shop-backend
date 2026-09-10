@@ -7,39 +7,50 @@ using SweetShop.Infrastructure.Persistence.Context;
 namespace SweetShop.Infrastructure.Persistence.Stores;
 
 /// <summary>
-/// Provides Entity Framework Core persistence operations for OTP verifications.
+/// Represents a store for managing OTP verification records in the database, providing methods to retrieve and add OTP verification entities.
 /// </summary>
 public sealed class OtpVerificationStore : IOtpVerificationStore
 {
     private readonly SweetShopDbContext dbContext;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="OtpVerificationStore"/> class.
-    /// </summary>
-    /// <param name="dbContext">The database context.</param>
-    public OtpVerificationStore(SweetShopDbContext dbContext)
+/// <summary>
+/// Initializes a new instance of the <see cref="OtpVerificationStore"/> class.
+/// </summary>
+/// <param name="dbContext"></param>
+/// <exception cref="ArgumentNullException"></exception>
+    public OtpVerificationStore(
+        SweetShopDbContext dbContext)
     {
-        ArgumentNullException.ThrowIfNull(dbContext);
-
-        this.dbContext = dbContext;
+        this.dbContext = dbContext
+            ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Retrieves the most recent pending OTP verification record for the specified mobile number, if it exists and has not expired.
+    /// </summary>
+    /// <param name="mobileNumber"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<OtpVerification?> GetPendingByMobileNumberAsync(
         string mobileNumber,
         CancellationToken cancellationToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(mobileNumber);
+        var now = DateTime.UtcNow;
 
-        return await dbContext.Set<OtpVerification>()
+        return await dbContext
+            .Set<OtpVerification>()
             .Where(otp =>
                 otp.MobileNumber == mobileNumber &&
-                otp.Status == OtpVerificationStatus.Pending)
+                otp.Status == OtpVerificationStatus.Pending &&
+                otp.ExpiresAt > now)
             .OrderByDescending(otp => otp.CreatedAt)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Adds a new OTP verification record to the database context.
+    /// </summary>
+    /// <param name="verification"></param>
     public void Add(OtpVerification verification)
     {
         ArgumentNullException.ThrowIfNull(verification);
