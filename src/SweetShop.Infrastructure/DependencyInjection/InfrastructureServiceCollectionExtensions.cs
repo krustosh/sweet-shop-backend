@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SweetShop.Application.Authentication;
+using SweetShop.Infrastructure.Authentication;
 using SweetShop.Infrastructure.Persistence.Context;
 
 namespace SweetShop.Infrastructure.DependencyInjection;
@@ -35,6 +37,46 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddDbContext<SweetShopDbContext>(
             options => options.UseSqlServer(connectionString));
+
+        var jwtOptions = configuration
+            .GetSection(JwtOptions.SectionName)
+            .Get<JwtOptions>()
+            ?? throw new InvalidOperationException(
+                "JWT configuration is not configured.");
+
+        if (string.IsNullOrWhiteSpace(jwtOptions.Issuer))
+        {
+            throw new InvalidOperationException(
+                "JWT issuer is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(jwtOptions.Audience))
+        {
+            throw new InvalidOperationException(
+                "JWT audience is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(jwtOptions.SigningKey))
+        {
+            throw new InvalidOperationException(
+                "JWT signing key is required.");
+        }
+
+        if (jwtOptions.SigningKey.Length < 32)
+        {
+            throw new InvalidOperationException(
+                "JWT signing key must contain at least 32 characters.");
+        }
+
+        if (jwtOptions.ExpirationMinutes <= 0)
+        {
+            throw new InvalidOperationException(
+                "JWT expiration must be greater than zero.");
+        }
+
+        services.AddSingleton(jwtOptions);
+
+        services.AddSingleton<IJwtTokenService, JwtTokenService>();
 
         return services;
     }
