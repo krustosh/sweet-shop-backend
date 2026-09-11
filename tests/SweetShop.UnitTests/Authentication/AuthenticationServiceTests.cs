@@ -346,6 +346,14 @@ public sealed class AuthenticationServiceTests
         {
             Users.Add(user);
         }
+
+        public Task<User?> GetByIdAsync(
+            Guid userId,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(
+                Users.SingleOrDefault(user => user.Id == userId));
+        }
     }
 
     private sealed class FakeOtpVerificationStore
