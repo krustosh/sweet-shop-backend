@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
+using SweetShop.Application.Features.Addresses;
 using SweetShop.Application.Features.Customers;
 using SweetShop.Application.Interfaces;
 using SweetShop.Infrastructure.Authentication;
@@ -90,7 +91,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IOtpSender, DevelopmentOtpSender>();
         services.AddScoped<ICustomerStore, CustomerStore>();
-
+        services.AddScoped<IAddressStore, AddressStore>();
         return services;
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
+using SweetShop.Application.Features.Addresses;
 using SweetShop.Application.Features.Customers;
 
 namespace SweetShop.Application.DependencyInjection;
@@ -20,7 +21,8 @@ public static class ApplicationServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ICustomerService, CustomerService>();
-
+        services.AddScoped<IAddressService, AddressService>();
+        
         return services;
     }
 }
