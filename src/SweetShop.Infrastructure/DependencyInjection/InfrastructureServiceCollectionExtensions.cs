@@ -2,13 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
+using SweetShop.Application.Features.Categories;
 using SweetShop.Application.Features.Customers;
 using SweetShop.Application.Interfaces;
 using SweetShop.Infrastructure.Authentication;
 using SweetShop.Infrastructure.Persistence;
 using SweetShop.Infrastructure.Persistence.Context;
 using SweetShop.Infrastructure.Persistence.Stores;
-
+using SweetShop.Infrastructure.Configuration;
 
 namespace SweetShop.Infrastructure.DependencyInjection;
 
@@ -79,6 +80,23 @@ public static class InfrastructureServiceCollectionExtensions
                 "JWT expiration must be greater than zero.");
         }
 
+        var shopOptions = configuration
+            .GetSection(ShopOptions.SectionName)
+            .Get<ShopOptions>()
+            ?? throw new InvalidOperationException(
+                "Shop configuration is not configured.");
+
+        if (shopOptions.Id == Guid.Empty)
+        {
+            throw new InvalidOperationException(
+                "Shop ID is not configured.");
+        }
+
+       services.Configure<ShopOptions>(
+       configuration.GetSection(ShopOptions.SectionName));
+
+        services.AddScoped<IShopContext, ShopContext>();
+
         services.AddSingleton(jwtOptions);
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
@@ -90,6 +108,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IOtpSender, DevelopmentOtpSender>();
         services.AddScoped<ICustomerStore, CustomerStore>();
+        services.AddScoped<ICategoryStore, CategoryStore>();
 
         return services;
     }

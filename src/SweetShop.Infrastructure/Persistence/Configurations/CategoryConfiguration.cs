@@ -29,7 +29,7 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasMaxLength(200);
 
         builder.Property(category => category.Description)
-            .HasMaxLength(2000);
+            .HasMaxLength(1000);
 
         builder.Property(category => category.ImageUrl)
             .HasMaxLength(2048);
@@ -45,15 +45,23 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.Property(category => category.UpdatedAt)
             .IsRequired();
+
         builder.HasOne<Shop>()
             .WithMany()
             .HasForeignKey(category => category.ShopId)
             .OnDelete(DeleteBehavior.Restrict);
-            
+
         builder.HasIndex(category => new
         {
             category.ShopId,
-            category.DisplayOrder   
+            category.DisplayOrder
         });
+
+        builder.HasIndex(category => new
+        {
+            category.ShopId,
+            category.Name
+        })
+        .IsUnique();
     }
 }

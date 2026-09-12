@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
+using SweetShop.Application.Features.Categories;
 using SweetShop.Application.Features.Customers;
 
 namespace SweetShop.Application.DependencyInjection;
@@ -18,8 +19,10 @@ public static class ApplicationServiceCollectionExtensions
         this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
+
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<ICategoryService, CategoryService>();
 
         return services;
     }

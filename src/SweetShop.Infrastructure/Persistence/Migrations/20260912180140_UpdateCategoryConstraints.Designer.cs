@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SweetShop.Infrastructure.Persistence.Context;
 
@@ -12,9 +13,11 @@ using SweetShop.Infrastructure.Persistence.Context;
 namespace SweetShop.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SweetShopDbContext))]
-    partial class SweetShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260912180140_UpdateCategoryConstraints")]
+    partial class UpdateCategoryConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
