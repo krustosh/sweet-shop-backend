@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
+using SweetShop.Application.Features.Categories;
 using SweetShop.Application.Features.Customers;
+using SweetShop.Application.Features.Addresses;
 using SweetShop.Application.Interfaces;
 using SweetShop.Infrastructure.Authentication;
 using SweetShop.Infrastructure.Persistence;
@@ -91,8 +93,8 @@ public static class InfrastructureServiceCollectionExtensions
                 "Shop ID is not configured.");
         }
 
-       services.Configure<ShopOptions>(
-       configuration.GetSection(ShopOptions.SectionName));
+        services.Configure<ShopOptions>(
+            configuration.GetSection(ShopOptions.SectionName));
 
         services.AddScoped<IShopContext, ShopContext>();
 
@@ -107,6 +109,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IOtpSender, DevelopmentOtpSender>();
         services.AddScoped<ICustomerStore, CustomerStore>();
+        services.AddScoped<IAddressStore, AddressStore>();
+        services.AddScoped<ICategoryStore, CategoryStore>();
 
         return services;
     }
