@@ -131,3 +131,10 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.RunAsync();
+
+/// <summary>
+/// 
+/// </summary>
+public partial class Program
+{
+}

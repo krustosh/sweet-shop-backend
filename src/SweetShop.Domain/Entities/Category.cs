@@ -43,10 +43,14 @@ public sealed class Category : AuditableEntity
     /// </summary>
     /// <param name="shopId">The identifier of the owning shop.</param>
     /// <param name="name">The category name.</param>
+    /// <param name="description">The category description.</param>
+    /// <param name="imageUrl">The category image URL.</param>
     /// <param name="displayOrder">The category display order.</param>
     public Category(
         Guid shopId,
         string name,
+        string? description,
+        string? imageUrl,
         int displayOrder)
     {
         if (shopId == Guid.Empty)
@@ -65,6 +69,8 @@ public sealed class Category : AuditableEntity
 
         ShopId = shopId;
         Name = RequireValue(name, nameof(name));
+        Description = NormalizeOptional(description);
+        ImageUrl = NormalizeOptional(imageUrl);
         DisplayOrder = displayOrder;
         Status = CategoryStatus.Active;
     }
@@ -114,7 +120,15 @@ public sealed class Category : AuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    private static string RequireValue(string value, string parameterName)
+    /// <summary>
+    /// Validates and normalizes a required string value.
+    /// </summary>
+    /// <param name="value">The value to validate.</param>
+    /// <param name="parameterName">The parameter name.</param>
+    /// <returns>The trimmed value.</returns>
+    private static string RequireValue(
+        string value,
+        string parameterName)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -126,6 +140,13 @@ public sealed class Category : AuditableEntity
         return value.Trim();
     }
 
+    /// <summary>
+    /// Normalizes an optional string value.
+    /// </summary>
+    /// <param name="value">The optional value.</param>
+    /// <returns>
+    /// The trimmed value, or <see langword="null"/> when empty.
+    /// </returns>
     private static string? NormalizeOptional(string? value)
     {
         return string.IsNullOrWhiteSpace(value)
