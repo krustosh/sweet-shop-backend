@@ -49,6 +49,16 @@ public interface IAddressService
         CancellationToken cancellationToken);
 
     /// <summary>
+    /// Marks an address as the default address for the currently authenticated customer.
+    /// </summary>
+    /// <param name="addressId">The identifier of the address to make default.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The updated address, or <see langword="null"/> when the address does not belong to the customer.</returns>
+    Task<AddressResponse?> SetMyDefaultAddressAsync(
+        Guid addressId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// Deletes an address for the currently authenticated customer.
     /// </summary>
     /// <param name="addressId"></param>

@@ -148,6 +148,40 @@ public sealed class AddressController : ControllerBase
     }
 
     /// <summary>
+    /// Marks an existing address as the default address for the authenticated customer.
+    /// </summary>
+    /// <param name="addressId">The identifier of the address to make default.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The updated default address.</returns>
+    [HttpPut("{addressId:guid}/default")]
+    [ProducesResponseType(
+        typeof(ApiResponse<AddressResponse>),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ApiErrorResponse),
+        StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetMyDefaultAddress(
+        Guid addressId,
+        CancellationToken cancellationToken)
+    {
+        var response = await addressService.SetMyDefaultAddressAsync(
+            addressId,
+            cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound(
+                new ApiErrorResponse(
+                    new ApiError(
+                        "ADDRESS_NOT_FOUND",
+                        "Address was not found.",
+                        Array.Empty<ApiErrorDetail>())));
+        }
+
+        return Ok(new ApiResponse<AddressResponse>(response));
+    }
+
+    /// <summary>
     /// Deletes an existing address associated with the authenticated customer.
     /// </summary>
     /// <param name="addressId"></param>

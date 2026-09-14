@@ -125,7 +125,7 @@ public sealed class AddressServiceTests
         Assert.Equal("560038", result.PostalCode);
         Assert.Equal(12.971599m, result.Latitude);
         Assert.Equal(77.641157m, result.Longitude);
-        Assert.False(result.IsDefault);
+        Assert.True(result.IsDefault);
         Assert.NotNull(addressStore.AddedAddress);
         Assert.Equal(1, unitOfWork.SaveChangesCallCount);
     }
@@ -316,6 +316,67 @@ public sealed class AddressServiceTests
             CancellationToken.None);
 
         Assert.Null(result);
+        Assert.Equal(0, unitOfWork.SaveChangesCallCount);
+    }
+
+    /// <summary>
+    /// Tests that the SetMyDefaultAddressAsync method marks the owned address as default and clears the previous default.
+    /// </summary>
+    /// <returns></returns>
+    [Fact]
+    public async Task SetMyDefaultAddressMarksAddressAsDefault()
+    {
+        var user = CreateUser();
+        var customer = CreateCustomer(user);
+        var existingDefault = CreateAddress(customer.Id, isDefault: true);
+        var addressToMakeDefault = CreateAddress(customer.Id);
+        var unitOfWork = new FakeUnitOfWork();
+
+        var service = CreateService(
+            currentUser: CreateAuthenticatedCurrentUser(user.Id),
+            customerStore: new FakeCustomerStore(customer),
+            addressStore: new FakeAddressStore(
+                existingDefault,
+                addressToMakeDefault),
+            unitOfWork: unitOfWork);
+
+        var result = await service.SetMyDefaultAddressAsync(
+            addressToMakeDefault.Id,
+            CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.True(result.IsDefault);
+        Assert.False(existingDefault.IsDefault);
+        Assert.True(addressToMakeDefault.IsDefault);
+        Assert.Equal(1, unitOfWork.SaveChangesCallCount);
+    }
+
+    /// <summary>
+    /// Tests that the SetMyDefaultAddressAsync method returns null when the address belongs to another customer.
+    /// </summary>
+    /// <returns></returns>
+    [Fact]
+    public async Task SetMyDefaultAddressWhenAddressBelongsToAnotherCustomerReturnsNull()
+    {
+        var user = CreateUser();
+        var customer = CreateCustomer(user);
+        var anotherUser = CreateUser("9876543211");
+        var anotherCustomer = CreateCustomer(anotherUser);
+        var address = CreateAddress(anotherCustomer.Id);
+        var unitOfWork = new FakeUnitOfWork();
+
+        var service = CreateService(
+            currentUser: CreateAuthenticatedCurrentUser(user.Id),
+            customerStore: new FakeCustomerStore(customer),
+            addressStore: new FakeAddressStore(address),
+            unitOfWork: unitOfWork);
+
+        var result = await service.SetMyDefaultAddressAsync(
+            address.Id,
+            CancellationToken.None);
+
+        Assert.Null(result);
+        Assert.False(address.IsDefault);
         Assert.Equal(0, unitOfWork.SaveChangesCallCount);
     }
 

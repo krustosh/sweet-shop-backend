@@ -85,7 +85,7 @@ public sealed class AddressService : IAddressService
 
     /// <summary>
     /// Creates a new address for the currently authenticated customer.
-    /// If the new address is marked as default, any existing default address will be updated accordingly
+    /// The first address is automatically made default, or an explicitly requested default replaces the existing default.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
@@ -98,7 +98,13 @@ public sealed class AddressService : IAddressService
 
         var customer = await GetCurrentCustomerAsync(cancellationToken);
 
-        if (request.IsDefault)
+        var existingAddresses = await addressStore.GetByCustomerIdAsync(
+            customer.Id,
+            cancellationToken);
+
+        var shouldBeDefault = request.IsDefault || existingAddresses.Count == 0;
+
+        if (shouldBeDefault)
         {
             await RemoveExistingDefaultAsync(
                 customer.Id,
@@ -130,7 +136,7 @@ public sealed class AddressService : IAddressService
             request.Latitude,
             request.Longitude);
 
-        if (request.IsDefault)
+        if (shouldBeDefault)
         {
             address.MarkAsDefault();
         }
@@ -144,7 +150,7 @@ public sealed class AddressService : IAddressService
 
     /// <summary>
     /// Updates an existing address of the currently authenticated customer.
-    /// If the updated address is marked as default, any existing default address will be updated accordingly
+    /// If the updated address is marked as default, any existing default address will be updated accordingly.
     /// </summary>
     /// <param name="addressId"></param>
     /// <param name="request"></param>
@@ -195,6 +201,44 @@ public sealed class AddressService : IAddressService
             request.PostalCode,
             request.Latitude,
             request.Longitude);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return MapToResponse(address);
+    }
+
+    /// <summary>
+    /// Marks an existing address as the default address of the currently authenticated customer.
+    /// </summary>
+    /// <param name="addressId">The identifier of the address to make default.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The updated address, or <see langword="null"/> when the address does not belong to the customer.</returns>
+    public async Task<AddressResponse?> SetMyDefaultAddressAsync(
+        Guid addressId,
+        CancellationToken cancellationToken)
+    {
+        var customer = await GetCurrentCustomerAsync(cancellationToken);
+
+        var address = await addressStore.GetByIdAsync(
+            addressId,
+            cancellationToken);
+
+        if (address is null || address.CustomerId != customer.Id)
+        {
+            return null;
+        }
+
+        var existingDefault = await addressStore.GetDefaultByCustomerIdAsync(
+            customer.Id,
+            cancellationToken);
+
+        if (existingDefault is not null &&
+            existingDefault.Id != address.Id)
+        {
+            existingDefault.RemoveDefaultDesignation();
+        }
+
+        address.MarkAsDefault();
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
