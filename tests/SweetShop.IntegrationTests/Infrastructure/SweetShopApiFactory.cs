@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SweetShop.Application.Features.Categories;
+using SweetShop.Application.Features.ProductImages;
 using SweetShop.Application.Features.Products;
 
 namespace SweetShop.IntegrationTests.Infrastructure;
@@ -38,15 +39,16 @@ public sealed class SweetShopApiFactory : WebApplicationFactory<Program>
             })
             .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
                 TestAuthenticationScheme,
-                _ =>
-                {
-                });
+                _ => { });
 
             services.RemoveAll<ICategoryService>();
             services.AddSingleton<ICategoryService, TestCategoryService>();
 
             services.RemoveAll<IProductService>();
             services.AddSingleton<IProductService, TestProductService>();
+
+            services.RemoveAll<IProductImageService>();
+            services.AddSingleton<IProductImageService, TestProductImageService>();
         });
     }
 }
@@ -76,6 +78,7 @@ internal sealed class TestAuthenticationHandler
             new Claim(
                 ClaimTypes.NameIdentifier,
                 Guid.NewGuid().ToString()),
+
             new Claim(
                 ClaimTypes.Role,
                 role.ToString())
