@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SweetShop.Application.Features.Categories;
+using SweetShop.Application.Features.Products;
 
 namespace SweetShop.IntegrationTests.Infrastructure;
 
@@ -35,14 +36,17 @@ public sealed class SweetShopApiFactory : WebApplicationFactory<Program>
                 options.DefaultChallengeScheme = TestAuthenticationScheme;
                 options.DefaultForbidScheme = TestAuthenticationScheme;
             })
-            
             .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
                 TestAuthenticationScheme,
                 _ =>
                 {
                 });
+
             services.RemoveAll<ICategoryService>();
             services.AddSingleton<ICategoryService, TestCategoryService>();
+
+            services.RemoveAll<IProductService>();
+            services.AddSingleton<IProductService, TestProductService>();
         });
     }
 }
@@ -60,8 +64,8 @@ internal sealed class TestAuthenticationHandler
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (!Request.Headers.TryGetValue("X-Test-Role", out var role)
-            || string.IsNullOrWhiteSpace(role))
+        if (!Request.Headers.TryGetValue("X-Test-Role", out var role) ||
+            string.IsNullOrWhiteSpace(role))
         {
             return Task.FromResult(
                 AuthenticateResult.NoResult());
@@ -71,8 +75,7 @@ internal sealed class TestAuthenticationHandler
         {
             new Claim(
                 ClaimTypes.NameIdentifier,
-                "11111111-1111-1111-1111-111111111112"),
-
+                Guid.NewGuid().ToString()),
             new Claim(
                 ClaimTypes.Role,
                 role.ToString())
@@ -80,13 +83,13 @@ internal sealed class TestAuthenticationHandler
 
         var identity = new ClaimsIdentity(
             claims,
-            SweetShopApiFactory.TestAuthenticationScheme);
+            Scheme.Name);
 
         var principal = new ClaimsPrincipal(identity);
 
         var ticket = new AuthenticationTicket(
             principal,
-            SweetShopApiFactory.TestAuthenticationScheme);
+            Scheme.Name);
 
         return Task.FromResult(
             AuthenticateResult.Success(ticket));

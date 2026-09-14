@@ -2,15 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
+using SweetShop.Application.Features.Addresses;
 using SweetShop.Application.Features.Categories;
 using SweetShop.Application.Features.Customers;
-using SweetShop.Application.Features.Addresses;
+using SweetShop.Application.Features.Products;
 using SweetShop.Application.Interfaces;
 using SweetShop.Infrastructure.Authentication;
+using SweetShop.Infrastructure.Configuration;
 using SweetShop.Infrastructure.Persistence;
 using SweetShop.Infrastructure.Persistence.Context;
 using SweetShop.Infrastructure.Persistence.Stores;
-using SweetShop.Infrastructure.Configuration;
 
 namespace SweetShop.Infrastructure.DependencyInjection;
 
@@ -111,6 +112,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ICustomerStore, CustomerStore>();
         services.AddScoped<IAddressStore, AddressStore>();
         services.AddScoped<ICategoryStore, CategoryStore>();
+        services.AddScoped<IProductStore, ProductStore>();
+        services.AddScoped<IProductVariantStore, ProductVariantStore>();
 
         return services;
     }
