@@ -13,6 +13,7 @@ using SweetShop.Infrastructure.Persistence;
 using SweetShop.Infrastructure.Persistence.Context;
 using SweetShop.Infrastructure.Persistence.Stores;
 using SweetShop.Application.Features.ProductImages;
+using SweetShop.Application.Features.Inventory;
 
 
 namespace SweetShop.Infrastructure.DependencyInjection;
@@ -117,6 +118,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IProductStore, ProductStore>();
         services.AddScoped<IProductVariantStore, ProductVariantStore>();
         services.AddScoped<IProductImageStore, ProductImageStore>();
+        services.AddScoped<IInventoryStore, InventoryStore>();
+        services.AddScoped<IInventoryTransactionStore, InventoryTransactionStore>();
 
         return services;
     }
