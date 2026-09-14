@@ -44,11 +44,13 @@ public sealed class Product : AuditableEntity
     /// <param name="shopId">The identifier of the owning shop.</param>
     /// <param name="categoryId">The identifier of the product category.</param>
     /// <param name="name">The product name.</param>
+    /// <param name="description">The product description.</param>
     /// <param name="displayOrder">The product display order.</param>
     public Product(
         Guid shopId,
         Guid categoryId,
         string name,
+        string? description,
         int displayOrder)
     {
         if (shopId == Guid.Empty)
@@ -75,6 +77,7 @@ public sealed class Product : AuditableEntity
         ShopId = shopId;
         CategoryId = categoryId;
         Name = RequireValue(name, nameof(name));
+        Description = NormalizeOptional(description);
         DisplayOrder = displayOrder;
         Status = ProductStatus.Active;
     }
@@ -138,7 +141,9 @@ public sealed class Product : AuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    private static string RequireValue(string value, string parameterName)
+    private static string RequireValue(
+        string value,
+        string parameterName)
     {
         if (string.IsNullOrWhiteSpace(value))
         {

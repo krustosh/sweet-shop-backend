@@ -3,6 +3,7 @@ using SweetShop.Application.Authentication;
 using SweetShop.Application.Features.Addresses;
 using SweetShop.Application.Features.Categories;
 using SweetShop.Application.Features.Customers;
+using SweetShop.Application.Features.Products;
 
 namespace SweetShop.Application.DependencyInjection;
 
@@ -25,6 +26,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IAddressService, AddressService>();
         services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IProductService, ProductService>();
 
         return services;
     }
