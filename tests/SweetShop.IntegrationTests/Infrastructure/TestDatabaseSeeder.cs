@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SweetShop.Domain.Common;
 using SweetShop.Domain.Entities;
 using SweetShop.Domain.Enums;
 using SweetShop.Domain.ValueObjects;
@@ -7,20 +8,20 @@ using SweetShop.Infrastructure.Persistence.Context;
 namespace SweetShop.IntegrationTests.Infrastructure;
 
 /// <summary>
-/// Seeds deterministic catalog data required by integration tests.
+/// Seeds deterministic data required by integration tests.
 /// </summary>
 internal static class TestDatabaseSeeder
 {
     private static readonly object SeedLock = new();
 
     /// <summary>
-    /// Ensures the deterministic catalog hierarchy exists.
+    /// Seeds the deterministic shop catalog used by integration tests.
     /// </summary>
     /// <param name="dbContext">The database context.</param>
-    /// <param name="shopId">The test shop identifier.</param>
-    /// <param name="categoryId">The test category identifier.</param>
-    /// <param name="productId">The test product identifier.</param>
-    /// <param name="variantId">The test product variant identifier.</param>
+    /// <param name="shopId">The deterministic shop identifier.</param>
+    /// <param name="categoryId">The deterministic category identifier.</param>
+    /// <param name="productId">The deterministic product identifier.</param>
+    /// <param name="variantId">The deterministic product variant identifier.</param>
     public static void SeedCatalog(
         SweetShopDbContext dbContext,
         Guid shopId,
@@ -42,13 +43,76 @@ internal static class TestDatabaseSeeder
     }
 
     /// <summary>
-    /// Creates the deterministic catalog records when they do not already exist.
+    /// Seeds the deterministic customer used by integration tests.
     /// </summary>
     /// <param name="dbContext">The database context.</param>
-    /// <param name="shopId">The test shop identifier.</param>
-    /// <param name="categoryId">The test category identifier.</param>
-    /// <param name="productId">The test product identifier.</param>
-    /// <param name="variantId">The test product variant identifier.</param>
+    /// <param name="userId">The preferred deterministic user identifier.</param>
+    /// <param name="customerId">The deterministic customer identifier.</param>
+    /// <param name="mobileNumber">The customer's mobile number.</param>
+    /// <returns>The actual user identifier associated with the seeded customer.</returns>
+    public static Guid SeedCustomer(
+        SweetShopDbContext dbContext,
+        Guid userId,
+        Guid customerId,
+        string mobileNumber)
+    {
+        ArgumentNullException.ThrowIfNull(dbContext);
+
+        if (string.IsNullOrWhiteSpace(mobileNumber))
+        {
+            throw new ArgumentException(
+                "Mobile number cannot be empty.",
+                nameof(mobileNumber));
+        }
+
+        lock (SeedLock)
+        {
+            var user = dbContext.Set<User>()
+                .SingleOrDefault(entity => entity.MobileNumber == mobileNumber);
+
+            if (user is null)
+            {
+                user = new User(mobileNumber, UserRole.Customer);
+
+                dbContext.Entry(user)
+                    .Property(entity => entity.Id)
+                    .CurrentValue = userId;
+
+                dbContext.Set<User>().Add(user);
+            }
+
+            var customer = dbContext.Set<Customer>()
+                .SingleOrDefault(entity => entity.UserId == user.Id);
+
+            if (customer is null)
+            {
+                customer = new Customer(
+                    user.Id,
+                    "Integration Test Customer");
+
+                dbContext.Entry(customer)
+                    .Property(entity => entity.Id)
+                    .CurrentValue = customerId;
+
+                dbContext.Set<Customer>().Add(customer);
+            }
+
+            dbContext.SaveChanges();
+
+            return user.Id;
+        }
+    }
+
+    /// <summary>
+    /// Seeds the catalog records while preserving deterministic identifiers.
+    /// Existing test records are reactivated so previous integration test runs
+    /// cannot leave the catalog unavailable to subsequent tests.
+    /// </summary>
+    /// <param name="dbContext">The database context.</param>
+    /// <param name="shopId">The deterministic shop identifier.</param>
+    /// <param name="categoryId">The deterministic category identifier.</param>
+    /// <param name="productId">The deterministic product identifier.</param>
+    /// <param name="variantId">The deterministic product variant identifier.</param>
     private static void SeedCatalogInternal(
         SweetShopDbContext dbContext,
         Guid shopId,
@@ -110,6 +174,10 @@ internal static class TestDatabaseSeeder
 
             dbContext.Set<Product>().Add(product);
         }
+        else
+        {
+            product.Activate();
+        }
 
         var variant = dbContext.Set<ProductVariant>()
             .SingleOrDefault(entity => entity.Id == variantId);
@@ -124,7 +192,7 @@ internal static class TestDatabaseSeeder
                     ProductUnit.Kilogram),
                 new Money(
                     450,
-                    Domain.Common.DomainConstants.CurrencyInr),
+                    DomainConstants.CurrencyInr),
                 1);
 
             dbContext.Entry(variant)
@@ -132,6 +200,10 @@ internal static class TestDatabaseSeeder
                 .CurrentValue = variantId;
 
             dbContext.Set<ProductVariant>().Add(variant);
+        }
+        else
+        {
+            variant.Activate();
         }
 
         dbContext.SaveChanges();

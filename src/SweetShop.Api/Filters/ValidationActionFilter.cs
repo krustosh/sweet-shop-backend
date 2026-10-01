@@ -11,7 +11,8 @@ namespace SweetShop.Api.Filters;
 public sealed class ValidationActionFilter : IAsyncActionFilter
 {
     /// <summary>
-    /// Executes the action filter asynchronously, validating action arguments and returning a BadRequest response if validation fails.
+    /// Executes the action filter asynchronously, validating action arguments and returning
+    /// a bad request response if validation fails.
     /// If validation passes, the action execution continues to the next filter or action.
     /// </summary>
     /// <param name="context">The action executing context.</param>
@@ -31,56 +32,20 @@ public sealed class ValidationActionFilter : IAsyncActionFilter
             var validatorType = typeof(IValidator<>)
                 .MakeGenericType(argument.GetType());
 
-            var validator = context.HttpContext.RequestServices
-                .GetService(validatorType);
-
-            if (validator is null)
+            if (context.HttpContext.RequestServices.GetService(validatorType)
+                is not IValidator validator)
             {
                 continue;
             }
 
-            var validationContextType = typeof(ValidationContext<>)
-                .MakeGenericType(argument.GetType());
-
-            var validationContext = Activator.CreateInstance(
-                validationContextType,
+            var validationContext = new ValidationContext<object>(
                 argument);
 
-            if (validationContext is null)
-            {
-                continue;
-            }
+            var validationResult = await validator.ValidateAsync(
+                validationContext,
+                context.HttpContext.RequestAborted);
 
-            var validateAsyncMethod = validatorType.GetMethod(
-                nameof(IValidator<object>.ValidateAsync),
-                new[]
-                {
-                    validationContextType,
-                    typeof(CancellationToken)
-                });
-
-            if (validateAsyncMethod is null)
-            {
-                continue;
-            }
-
-            var validationTask = (Task)validateAsyncMethod.Invoke(
-                validator,
-                new object[]
-                {
-                    validationContext,
-                    context.HttpContext.RequestAborted
-                })!;
-
-            await validationTask.ConfigureAwait(false);
-
-            var validationResult = validationTask
-                .GetType()
-                .GetProperty("Result")?
-                .GetValue(validationTask)
-                as FluentValidation.Results.ValidationResult;
-
-            if (validationResult is null || validationResult.IsValid)
+            if (validationResult.IsValid)
             {
                 continue;
             }
