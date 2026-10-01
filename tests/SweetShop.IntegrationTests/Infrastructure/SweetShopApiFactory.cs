@@ -47,6 +47,23 @@ public sealed class SweetShopApiFactory : WebApplicationFactory<Program>
         Guid.Parse("55555555-5555-5555-5555-555555555555");
 
     /// <summary>
+    /// Gets the preferred deterministic user identifier used by customer integration tests.
+    /// </summary>
+    public static Guid PreferredTestCustomerUserId { get; } =
+        Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+    /// <summary>
+    /// Gets the actual user identifier associated with the integration-test customer.
+    /// </summary>
+    public static Guid TestCustomerUserId { get; private set; }
+
+    /// <summary>
+    /// Gets the deterministic customer identifier used by customer integration tests.
+    /// </summary>
+    public static Guid TestCustomerId { get; } =
+        Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+    /// <summary>
     /// Gets the authentication scheme used by integration tests.
     /// </summary>
     public const string TestAuthenticationScheme = "TestAuthentication";
@@ -89,7 +106,7 @@ public sealed class SweetShopApiFactory : WebApplicationFactory<Program>
     /// <summary>
     /// Creates the application host and ensures required integration-test data exists.
     /// </summary>
-    /// <param name="builder">The application host builder.</param>
+    /// <param name="builder">The web host builder.</param>
     /// <returns>The configured application host.</returns>
     protected override IHost CreateHost(IHostBuilder builder)
     {
@@ -108,6 +125,12 @@ public sealed class SweetShopApiFactory : WebApplicationFactory<Program>
             TestCategoryId,
             TestProductId,
             TestVariantId);
+
+        TestCustomerUserId = TestDatabaseSeeder.SeedCustomer(
+            dbContext,
+            PreferredTestCustomerUserId,
+            TestCustomerId,
+            "9876543210");
 
         return host;
     }
@@ -146,11 +169,21 @@ internal sealed class TestAuthenticationHandler
                 AuthenticateResult.NoResult());
         }
 
+        var userId = Request.Headers.TryGetValue(
+                "X-Test-User-Id",
+                out var requestedUserId) &&
+            Guid.TryParse(requestedUserId.ToString(), out var parsedUserId)
+                ? parsedUserId
+                : Guid.NewGuid();
+
         var claims = new[]
         {
             new Claim(
                 ClaimTypes.NameIdentifier,
-                Guid.NewGuid().ToString()),
+                userId.ToString()),
+            new Claim(
+                "sub",
+                userId.ToString()),
             new Claim(
                 ClaimTypes.Role,
                 role.ToString())
