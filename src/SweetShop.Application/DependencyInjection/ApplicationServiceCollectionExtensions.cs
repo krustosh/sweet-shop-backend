@@ -1,13 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
 using SweetShop.Application.Features.Addresses;
+using SweetShop.Application.Features.Cart;
 using SweetShop.Application.Features.Categories;
 using SweetShop.Application.Features.Customers;
+using SweetShop.Application.Features.Inventory;
+using SweetShop.Application.Features.Orders;
+using SweetShop.Application.Features.Payments;
 using SweetShop.Application.Features.Products;
 using SweetShop.Application.Features.ProductImages;
-using SweetShop.Application.Features.Inventory;
-using SweetShop.Application.Features.Cart;
-using SweetShop.Application.Features.Orders;
 
 namespace SweetShop.Application.DependencyInjection;
 
@@ -35,6 +36,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IPaymentService, PaymentService>();
+
         return services;
     }
 }

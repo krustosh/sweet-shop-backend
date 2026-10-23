@@ -3,8 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SweetShop.Application.Authentication;
 using SweetShop.Application.Features.Addresses;
+using SweetShop.Application.Features.Cart;
 using SweetShop.Application.Features.Categories;
 using SweetShop.Application.Features.Customers;
+using SweetShop.Application.Features.Inventory;
+using SweetShop.Application.Features.Orders;
+using SweetShop.Application.Features.Payments;
+using SweetShop.Application.Features.ProductImages;
 using SweetShop.Application.Features.Products;
 using SweetShop.Application.Interfaces;
 using SweetShop.Infrastructure.Authentication;
@@ -12,11 +17,6 @@ using SweetShop.Infrastructure.Configuration;
 using SweetShop.Infrastructure.Persistence;
 using SweetShop.Infrastructure.Persistence.Context;
 using SweetShop.Infrastructure.Persistence.Stores;
-using SweetShop.Application.Features.ProductImages;
-using SweetShop.Application.Features.Inventory;
-using SweetShop.Application.Features.Cart;
-using SweetShop.Application.Features.Orders;
-
 
 namespace SweetShop.Infrastructure.DependencyInjection;
 
@@ -124,6 +124,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IInventoryTransactionStore, InventoryTransactionStore>();
         services.AddScoped<ICartStore, CartStore>();
         services.AddScoped<IOrderStore, OrderStore>();
+        services.AddScoped<IPaymentStore, PaymentStore>();
 
         return services;
     }
